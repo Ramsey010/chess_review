@@ -59,11 +59,25 @@ span.pc.b{color:#1d1d1d;text-shadow:0 1px 1px #fff5}
 .cf,.cr{position:absolute;font-size:10px;font-weight:700;z-index:1}
 .cf{right:3px;bottom:1px}.cr{left:3px;top:1px}
 .sq.l .cf,.sq.l .cr{color:var(--dark)}.sq.d .cf,.sq.d .cr{color:var(--light)}
-.badge{position:absolute;top:-4%;right:-4%;width:42%;height:42%;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;z-index:3;box-shadow:0 1px 3px #0008}
+.badge{position:absolute;top:-5%;right:-5%;width:44%;height:44%;z-index:3;filter:drop-shadow(0 1px 2px #0009)}
+.ui{width:1.25em;height:1.25em;vertical-align:-.25em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ui .f{fill:currentColor}
+.dot .f,.badge .f{fill:#fff}
 svg.arrows{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
-.dot{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 3px;border-radius:10px;color:#fff;font-size:11px;font-weight:800;vertical-align:middle;margin-right:4px}
+.dot{width:20px;height:20px;vertical-align:middle;margin-right:5px;position:relative;top:-1px}
 .coach{margin-top:10px}
 .ititle{font-size:16px;margin-bottom:4px}
+#iNext{margin:6px 0 4px;display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+#iNext:empty{display:none}
+.chip{border:1px solid #4a90d9;border-radius:8px;background:#4a90d922;color:var(--text);font-size:14px;padding:4px 9px}
+.chip span{color:var(--muted);font-size:12px;margin-left:3px}
+.acts{display:flex;gap:8px;margin-top:10px}
+.acts button{flex:1;border:0;border-radius:8px;background:var(--card2);color:var(--text);font-size:14px;font-weight:600;padding:9px 6px}
+.acts button.go{background:var(--accent);color:#fff}
+.xline{color:var(--muted)}
+.xline .on{background:var(--card2);color:#fff;border-radius:4px;padding:1px 4px;font-weight:700}
+.tgt{position:absolute;z-index:3;width:30%;height:30%;border-radius:50%;background:#0000002e;pointer-events:none}
+.tgt.cap{width:94%;height:94%;background:none;border:4px solid #0000002e}
 #iSay{margin-bottom:4px}
 .you{font-size:11px;background:var(--card2);padding:1px 6px;border-radius:8px;margin-left:4px;vertical-align:middle;font-weight:400}
 .nav{display:grid;grid-template-columns:repeat(4,1fr) 1.8fr;gap:6px;margin-bottom:12px}
@@ -95,7 +109,7 @@ table.sum th{font-size:13px;color:var(--muted);font-weight:600}
 </style>
 </head>
 <body>
-<header><h1>Infinite Review</h1><button class="icon" id="gear" aria-label="Settings">⚙</button></header>
+<header><h1>Infinite Review</h1><button class="icon" id="gear" aria-label="Settings"><svg class="ui" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button></header>
 <main>
   <section id="inputView">
     <div class="card">
@@ -111,8 +125,8 @@ table.sum th{font-size:13px;color:var(--muted);font-weight:600}
       <h2>Or paste a PGN</h2>
       <textarea id="pgn" placeholder="Paste a PGN here (chess.com: Share → PGN → Copy)"></textarea>
       <div class="row">
-        <button class="btn alt" id="pasteBtn">📋 Paste</button>
-        <button class="btn alt" id="fileBtn">📂 Open file</button>
+        <button class="btn alt" id="pasteBtn"><svg class="ui" viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="5" width="13" height="16" rx="2"/><rect class="f" x="9" y="3" width="6" height="4" rx="1"/></svg> Paste</button>
+        <button class="btn alt" id="fileBtn"><svg class="ui" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2.500h8a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg> Open file</button>
       </div>
       <input type="file" id="file" hidden>
       <button class="btn" id="reviewBtn">Review game</button>
@@ -138,13 +152,19 @@ table.sum th{font-size:13px;color:var(--muted);font-weight:600}
       <div class="ititle" id="iTitle"></div>
       <div id="iSay"></div>
       <div id="iBest"></div>
+      <div id="iNext"></div>
       <div class="muted" id="iLine"></div>
       <div class="muted" id="iEval"></div>
+      <div class="acts" id="acts">
+        <button id="bestLineBtn">Show best line</button>
+        <button id="followBtn">Show follow-up</button>
+        <button id="exitBtn" class="go">Back to game</button>
+      </div>
     </div>
     <div class="nav">
-      <button data-nav="first" aria-label="First move">⏮</button><button data-nav="prev" aria-label="Previous move">◀</button>
-      <button data-nav="next" aria-label="Next move">▶</button><button data-nav="last" aria-label="Last move">⏭</button>
-      <button data-nav="err">⚠ My next error</button>
+      <button data-nav="first" aria-label="First move"><svg class="ui" viewBox="0 0 24 24" aria-hidden="true"><polygon class="f" points="19,6 10,12 19,18"/><path d="M6 6v12"/></svg></button><button data-nav="prev" aria-label="Previous move"><svg class="ui" viewBox="0 0 24 24" aria-hidden="true"><polygon class="f" points="16,6 7,12 16,18"/></svg></button>
+      <button data-nav="next" aria-label="Next move"><svg class="ui" viewBox="0 0 24 24" aria-hidden="true"><polygon class="f" points="8,6 17,12 8,18"/></svg></button><button data-nav="last" aria-label="Last move"><svg class="ui" viewBox="0 0 24 24" aria-hidden="true"><polygon class="f" points="5,6 14,12 5,18"/><path d="M18 6v12"/></svg></button>
+      <button data-nav="err"><svg class="ui" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 2.500 20h19z"/><path d="M12 10.500v4"/><circle class="f" cx="12" cy="17.200" r=".6"/></svg> My next error</button>
     </div>
     <div class="card"><div id="graph" role="img" aria-label="Advantage over the game. White area is White's winning chances; tap or drag to jump to a move."></div></div>
     <div class="card"><div id="moves"></div></div>
@@ -168,7 +188,8 @@ table.sum th{font-size:13px;color:var(--muted);font-weight:600}
     <h3>Display</h3>
     <div class="set"><div>Your username<div class="sub">Puts your side at the bottom and marks "you"</div></div><input type="text" id="sUser" autocapitalize="off" autocomplete="off"></div>
     <div class="set"><div>Default side</div><select id="sOrient"><option value="white">White</option><option value="black">Black</option></select></div>
-    <div class="set"><div>Best-move arrows</div><input type="checkbox" id="sArrows"></div>
+    <div class="set"><div>Best-move arrows<div class="sub">Green: what should have been played</div></div><input type="checkbox" id="sArrows"></div>
+    <div class="set"><div>Suggested-move arrows<div class="sub">Blue: good moves in the position on the board</div></div><input type="checkbox" id="sNext"></div>
     <div class="set"><div>Eval bar</div><input type="checkbox" id="sEvalBar"></div>
     <div class="err" id="setErr"></div>
     <button class="btn" id="saveBtn">Save</button>
@@ -185,23 +206,32 @@ const FILES = 'abcdefgh';
 const VAL = {p:1, n:3, b:3, r:5, q:9, k:100};
 const PIECE = {p:'pawn', n:'knight', b:'bishop', r:'rook', q:'queen', k:'king'};
 const GLYPH = {k:'♚', q:'♛', r:'♜', b:'♝', n:'♞', p:'♟'};
+// Grade glyphs are drawn as SVG (24×24, white on the grade colour) so they look the same on every device.
+const bang = x => `<path d="M${x} 6v6.2"/><circle class="f" stroke="none" cx="${x}" cy="17.6" r="1.75"/>`;
+const ques = x => `<path d="M${x - 2.7} 8.7a2.7 2.7 0 1 1 4.1 2.3c-.95.6-1.4 1.2-1.4 2.3"/><circle class="f" stroke="none" cx="${x}" cy="17.6" r="1.75"/>`;
+const tight = s => `<g transform="translate(12 12) scale(.86) translate(-12 -12)">${s}</g>`;
+const star = Array.from({length: 10}, (_, k) => { const r = k % 2 ? 3.1 : 7.2, a = Math.PI * (k / 5 - .5);
+  return (12 + r * Math.cos(a)).toFixed(2) + ',' + (12.4 + r * Math.sin(a)).toFixed(2); }).join(' ');
 const GRADES = {
-  Brilliant: {sym:'!!', color:'#26c2a3', say:'is brilliant'},
-  Great:     {sym:'!',  color:'#749bbf', say:'is a great move'},
-  Best:      {sym:'★',  color:'#81b64c', say:'is best'},
-  Excellent: {sym:'👍', color:'#96bc4b', say:'is excellent'},
-  Good:      {sym:'✓',  color:'#96af8b', say:'is good'},
-  Book:      {sym:'📖', color:'#a88865', say:'is a book move'},
-  Inaccuracy:{sym:'?!', color:'#f7c631', say:'is an inaccuracy'},
-  Mistake:   {sym:'?',  color:'#ffa459', say:'is a mistake'},
-  Miss:      {sym:'✗',  color:'#ff7769', say:'is a miss'},
-  Blunder:   {sym:'??', color:'#fa412d', say:'is a blunder'},
+  Brilliant: {color:'#26c2a3', say:'is brilliant', glyph: bang(9) + bang(15)},
+  Great:     {color:'#749bbf', say:'is a great move', glyph: bang(12)},
+  Best:      {color:'#81b64c', say:'is best', glyph: `<polygon class="f" points="${star}" stroke-width="1.2"/>`},
+  Excellent: {color:'#96bc4b', say:'is excellent', glyph: '<path class="f" stroke="none" transform="translate(12 12) scale(.56) translate(-12 -11.5)" d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>'},
+  Good:      {color:'#96af8b', say:'is good', glyph: '<path d="M7 12.6l3.4 3.4 6.8-7.3"/>'},
+  Book:      {color:'#a88865', say:'is a book move', glyph: '<path class="f" stroke-width="1" d="M12 8.3c-1.7-1.2-3.8-1.5-5.8-1.1v8.6c2-.4 4.100-.100 5.800 1.100 1.700-1.200 3.800-1.500 5.800-1.100V7.200c-2-.4-4.100-.1-5.800 1.100z"/><path d="M12 8.600v8" stroke="#a88865" stroke-width="1.300"/>'},
+  Inaccuracy:{color:'#f7c631', say:'is an inaccuracy', glyph: tight(ques(8.6) + bang(16.6))},
+  Mistake:   {color:'#ffa459', say:'is a mistake', glyph: ques(12)},
+  Miss:      {color:'#ff7769', say:'is a miss', glyph: '<path d="M8 8l8 8M16 8l-8 8"/>'},
+  Blunder:   {color:'#fa412d', say:'is a blunder', glyph: tight(ques(7.6) + ques(16.4))},
 };
+const gradeIcon = (g, cls, label) => `<svg class="${cls}" viewBox="0 0 24 24" ${label ? `role="img" aria-label="${g}"` : 'aria-hidden="true"'}>`
+  + `<circle cx="12" cy="12" r="12" fill="${GRADES[g].color}"/>`
+  + `<g fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">${GRADES[g].glyph}</g></svg>`;
 const ERRORS = new Set(['Inaccuracy', 'Mistake', 'Miss', 'Blunder']);
 const KEY = new Set(['Brilliant', 'Great', 'Mistake', 'Miss', 'Blunder']);   // marked on the graph
 const NO_BEST = ['Best', 'Great', 'Brilliant', 'Book'];
 const DEFAULTS = {v:2, depth:16, bookPlies:10, special:true, exc:2, good:5, inacc:10, mistake:20,
-                  username:'', orient:'white', arrows:true, evalBar:true};
+                  username:'', orient:'white', arrows:true, nextArrows:true, evalBar:true};
 
 let S = loadSettings(), G = null, cur = -1, cancelled = false, running = false, imgPieces = true;
 
@@ -221,7 +251,7 @@ function toast(msg) {
   clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 2500);
 }
 const sqName = (f, r) => FILES[f] + (r + 1);
-const dot = g => `<span class="dot" style="background:${GRADES[g].color}">${GRADES[g].sym}</span>`;
+const dot = g => gradeIcon(g, 'dot', true);
 
 /* ---------- Stockfish ---------- */
 const engine = {
@@ -265,7 +295,7 @@ const engine = {
     });
   },
   send(cmd) { this.w.postMessage(cmd); },
-  stop() { if (this.w) this.send('stop'); },
+  stop() { if (this.w && this.busy) this.send('stop'); },
   analyse(fen, depth) {
     return new Promise(resolve => {
       const lines = {};
@@ -273,8 +303,9 @@ const engine = {
         if (l.startsWith('info') && l.includes(' pv ') && !/bound/.test(l)) {
           const mp = /multipv (\d+)/.exec(l), sc = /score (cp|mate) (-?\d+)/.exec(l);
           if (sc) lines[mp ? +mp[1] : 1] = {type: sc[1], v: +sc[2], pv: l.split(' pv ')[1].trim().split(/\s+/)};
-        } else if (l.startsWith('bestmove')) { this.onLine = () => {}; resolve(lines); }
+        } else if (l.startsWith('bestmove')) { this.onLine = () => {}; this.busy = false; resolve(lines); }
       };
+      this.busy = true;
       this.send('position fen ' + fen);
       this.send('go depth ' + depth);
     });
@@ -293,13 +324,14 @@ function evalText(l, stm) {
 // ep = win chance for the side to move, mate = moves to mate from its point of view (negative = getting mated)
 async function evaluate(fen) {
   const c = new Chess(fen), stm = c.turn();
-  const flat = {second:null, best:null, pv:[], mate:null};
+  const flat = {second:null, best:null, pv:[], mate:null, cands:[]};
   if (c.in_checkmate()) return {...flat, ep:0, text:'#', epW: stm === 'w' ? 0 : 1};
   if (c.game_over()) return {...flat, ep:0.5, text:'½-½', epW:0.5};
   const lines = await engine.analyse(fen, S.depth), l1 = lines[1], l2 = lines[2];
   if (!l1) return {...flat, ep:0.5, text:'?', epW:0.5};
   const ep = epOf(l1);
-  return {ep, second: l2 ? epOf(l2) : null, best: l1.pv[0], pv: l1.pv, mate: l1.type === 'mate' ? l1.v : null,
+  const cands = [l1, l2].filter(Boolean).map(l => ({uci: l.pv[0], ep: epOf(l), text: evalText(l, stm)}));
+  return {cands, ep, second: l2 ? epOf(l2) : null, best: l1.pv[0], pv: l1.pv, mate: l1.type === 'mate' ? l1.v : null,
           text: evalText(l1, stm), epW: stm === 'w' ? ep : 1 - ep};
 }
 
@@ -431,6 +463,11 @@ function isSacrifice(fen, m) {
   const lost = Math.max(0, ...newlyHanging(fen, m).map(h => VAL[h.type]));
   return lost - gained >= 2;
 }
+function goodMoves(e) {
+  if (!e || !e.cands || !e.cands.length) return [];
+  const [a, b] = e.cands;
+  return b && a.ep - b.ep <= S.good / 100 ? [a, b] : [a];
+}
 function pvToSan(fen, pv, n = 6) {
   const c = new Chess(fen), out = [];
   for (const u of pv.slice(0, n)) {
@@ -514,6 +551,22 @@ function gameAccuracy() {
   }
   return out;
 }
+// Rough per-game strength estimate. chess.com doesn't publish its formula, so this maps accuracy
+// onto a rating curve and, when the PGN has the player's real rating, pulls the estimate towards
+// it (more so in short games, where accuracy says little).
+const RATING_CURVE = [[0,100],[40,300],[50,450],[60,700],[70,1000],[75,1250],[80,1500],[85,1800],[90,2100],[93,2350],[96,2650],[100,3200]];
+function gameRating(c) {
+  const acc = G.acc[c];
+  if (acc === null) return null;
+  let i = 1;
+  while (i < RATING_CURVE.length - 1 && acc > RATING_CURVE[i][0]) i++;
+  const [a0, r0] = RATING_CURVE[i - 1], [a1, r1] = RATING_CURVE[i];
+  let est = r0 + (r1 - r0) * (acc - a0) / (a1 - a0);
+  const elo = +G.headers[c === 'w' ? 'WhiteElo' : 'BlackElo'];
+  const n = G.rows.filter(r => r.color === c && r.grade !== 'Book').length;
+  if (elo > 0) est = elo + (est - elo) * 0.6 * Math.min(1, n / 20);
+  return Math.max(100, Math.round(est / 50) * 50);
+}
 function youColor() {
   const u = S.username.trim().toLowerCase();
   if (u && (G.headers.White || '').toLowerCase() === u) return 'w';
@@ -522,51 +575,68 @@ function youColor() {
 }
 
 /* ---------- Rendering ---------- */
-function arrow(from, to, color, flip) {
+function arrow(from, to, color, flip, k = 1, op = .85) {
   const xy = s => { const f = s.charCodeAt(0) - 97, r = +s[1] - 1; return [(flip ? 7 - f : f) + .5, (flip ? r : 7 - r) + .5]; };
   const [x1, y1] = xy(from), [x2, y2] = xy(to);
   const len = Math.hypot(x2 - x1, y2 - y1), ux = (x2 - x1) / len, uy = (y2 - y1) / len, px = -uy, py = ux;
-  const w = .11, hw = .3, hl = .38, bx = x2 - ux * hl, by = y2 - uy * hl;
+  const w = .11 * k, hw = .3 * k, hl = .38 * k, bx = x2 - ux * hl, by = y2 - uy * hl;
   const pts = [[x1+px*w, y1+py*w], [bx+px*w, by+py*w], [bx+px*hw, by+py*hw], [x2, y2],
                [bx-px*hw, by-py*hw], [bx-px*w, by-py*w], [x1-px*w, y1-py*w]];
-  return `<polygon points="${pts.map(p => p.join(',')).join(' ')}" fill="${color}" opacity=".85"/>`;
+  return `<polygon points="${pts.map(p => p.join(',')).join(' ')}" fill="${color}" opacity="${op}"/>`;
 }
-let shown = null;   // move index the board last drew, so a single step can be animated
+let shown = null;   // what the board last drew ({x: exploring?, i: move index}), so a single step can be animated
+let X = null, sel = null, xTok = 0, xJob = Promise.resolve();
+const SELECT = '#f5d848';
 const noMotion = matchMedia('(prefers-reduced-motion: reduce)');
 function pieceFail() { if (imgPieces) { imgPieces = false; if (reviewVisible()) renderBoard(); } }
+// What the board shows right now: a position from the game, or one from the line being explored.
+function boardView() {
+  if (X) {
+    const fen = X.fens[X.idx], e = X.evals[fen];
+    return {fen, mv: X.idx > 0 ? X.moves[X.idx - 1] : null, hl: SELECT, grade: null, best: null, next: goodMoves(e),
+            epW: e ? e.epW : null, i: X.idx - 1, list: X.moves, x: true};
+  }
+  const row = cur >= 0 ? G.rows[cur] : null;
+  return {fen: G.fens[cur + 1], mv: cur >= 0 ? G.moves[cur] : null, hl: row && GRADES[row.grade].color, grade: row && row.grade,
+          best: row && !NO_BEST.includes(row.grade) ? row.bestUci : null, next: goodMoves(G.evals[cur + 1]), epW: G.evals[cur + 1].epW, i: cur, list: G.moves, x: false};
+}
 function renderBoard() {
-  const el = $('board'), flip = youColor() === 'b';
+  const el = $('board'), flip = youColor() === 'b', v = boardView();
   $('evalbar').classList.toggle('hidden', !S.evalBar);
   $('evalbar').classList.toggle('flip', flip);
-  $('evalfill').style.height = ((1 - G.evals[cur + 1].epW) * 100) + '%';
-  const c = new Chess(G.fens[cur + 1]);
-  const row = cur >= 0 ? G.rows[cur] : null, mv = cur >= 0 ? G.moves[cur] : null;
+  if (v.epW !== null) $('evalfill').style.height = ((1 - v.epW) * 100) + '%';
+  const c = new Chess(v.fen);
+  const targets = sel ? c.moves({square: sel, verbose: true}) : [];
   const size = el.clientWidth / 8;
   let html = '';
   for (let vr = 0; vr < 8; vr++) for (let vc = 0; vc < 8; vc++) {
     const f = flip ? 7 - vc : vc, rk = flip ? vr : 7 - vr, sq = sqName(f, rk);
     let inner = '';
-    if (mv && (sq === mv.from || sq === mv.to)) inner += `<div class="hl" style="background:${GRADES[row.grade].color}"></div>`;
+    if (sq === sel) inner += `<div class="hl" style="background:${SELECT}"></div>`;
+    else if (v.mv && (sq === v.mv.from || sq === v.mv.to)) inner += `<div class="hl" style="background:${v.hl}"></div>`;
     const p = c.get(sq);
     if (p) inner += imgPieces
       ? `<img class="pc" src="pieces/${p.color}${p.type.toUpperCase()}.svg" alt="" draggable="false" onerror="pieceFail()">`
       : `<span class="pc ${p.color}" style="font-size:${size * .8}px">${GLYPH[p.type]}︎</span>`;
-    if (mv && sq === mv.to) inner += `<div class="badge" style="background:${GRADES[row.grade].color};font-size:${size * .22}px">${GRADES[row.grade].sym}</div>`;
+    if (v.grade && sq === v.mv.to) inner += gradeIcon(v.grade, 'badge');
+    const t = targets.find(m => m.to === sq);
+    if (t) inner += `<div class="tgt${t.captured ? ' cap' : ''}"></div>`;
     if (vr === 7) inner += `<span class="cf">${FILES[f]}</span>`;
     if (vc === 0) inner += `<span class="cr">${rk + 1}</span>`;
     html += `<div class="sq ${(f + rk) % 2 ? 'l' : 'd'}" data-sq="${sq}">${inner}</div>`;
   }
-  let svg = '';
-  if (S.arrows && row && row.bestUci && !NO_BEST.includes(row.grade))
-    svg = arrow(row.bestUci.slice(0, 2), row.bestUci.slice(2, 4), '#5cb85c', flip);
+  // green = what should have been played instead; blue = good moves for whoever moves next
+  let svg = S.arrows && v.best ? arrow(v.best.slice(0, 2), v.best.slice(2, 4), '#5cb85c', flip) : '';
+  if (S.nextArrows && !sel) v.next.forEach((m, j) => { svg += arrow(m.uci.slice(0, 2), m.uci.slice(2, 4), '#4a90d9', flip, .8, j ? .5 : .8); });
   el.innerHTML = html + `<svg class="arrows" viewBox="0 0 8 8">${svg}</svg>`;
-  animateStep(el, size, flip);
+  animateStep(el, size, flip, v);
 }
 // Slide the moved piece when stepping exactly one move forward or back; jumps just snap.
-function animateStep(el, size, flip) {
-  const from = shown; shown = cur;
-  if (from === null || Math.abs(cur - from) !== 1 || !el.animate || noMotion.matches) return;
-  const fwd = cur > from, m = G.moves[fwd ? cur : from];
+function animateStep(el, size, flip, v) {
+  const from = shown; shown = {x: v.x, i: v.i};
+  if (!from || from.x !== v.x || Math.abs(v.i - from.i) !== 1 || !el.animate || noMotion.matches) return;
+  const fwd = v.i > from.i, m = v.list[fwd ? v.i : from.i];
+  if (!m) return;
   const slides = [[m.from, m.to]];
   if (m.flags.includes('k')) slides.push(['h' + m.from[1], 'f' + m.from[1]]);   // castling: rook too
   if (m.flags.includes('q')) slides.push(['a' + m.from[1], 'd' + m.from[1]]);
@@ -584,13 +654,97 @@ function animateStep(el, size, flip) {
   if (badge) badge.animate([{transform: 'scale(0)'}, {transform: 'scale(1.15)', offset: .7}, {transform: 'scale(1)'}], pop);
   arrows.animate([{opacity: 0}, {opacity: 1}], pop);
 }
+
+/* ---------- Explore: play out engine lines, or your own moves, on the board ---------- */
+// X = {fens, moves, idx, evals (by fen), timer, label}; null while looking at the game itself.
+function startExplore(k, pv, label) {
+  leaveExplore();
+  X = {fens: [G.fens[k]], moves: [], idx: 0, evals: {[G.fens[k]]: G.evals[k]}, timer: null, label};
+  const c = new Chess(G.fens[k]);
+  for (const u of pv.slice(0, 10)) {
+    const m = c.move({from: u.slice(0, 2), to: u.slice(2, 4), promotion: u[4]});
+    if (!m) break;
+    X.moves.push(m); X.fens.push(c.fen());
+  }
+  shown = {x: true, i: -1};
+}
+function showLine(k, label) {
+  startExplore(k, G.evals[k].pv, label);
+  renderAll();
+  X.timer = setInterval(() => {
+    if (!X || X.idx >= X.moves.length) return stopAuto();
+    X.idx++; exploreChanged();
+  }, 800);
+}
+function stopAuto() { if (X && X.timer) { clearInterval(X.timer); X.timer = null; } }
+function leaveExplore() { if (!X) { sel = null; return; } stopAuto(); X = null; sel = null; xTok++; engine.stop(); }
+function exitExplore() { leaveExplore(); renderAll(); }
+function exploreChanged() { sel = null; renderAll(); exploreEval(); }
+// Evaluate the position on the board. Only the newest request counts: an older search is
+// stopped and its half-finished result thrown away.
+async function exploreEval() {
+  const x = X, tok = ++xTok, fen = x.fens[x.idx];
+  if (x.evals[fen]) return;
+  engine.stop();
+  await xJob;
+  if (tok !== xTok) return;
+  xJob = evaluate(fen).then(e => { if (tok === xTok) x.evals[fen] = e; }, () => {});
+  await xJob;
+  if (tok === xTok && X === x) renderAll();
+}
+// Tap a piece, then a highlighted square, to try a move of your own.
+function boardTap(sq) {
+  const c = new Chess(X ? X.fens[X.idx] : G.fens[cur + 1]);
+  if (sel && c.moves({square: sel, verbose: true}).some(m => m.to === sq)) return playMove(sel, sq);
+  const p = c.get(sq);
+  sel = p && p.color === c.turn() && sq !== sel ? sq : null;
+  renderBoard();
+}
+function playMove(from, to, promotion) {
+  const c = new Chess(X ? X.fens[X.idx] : G.fens[cur + 1]);
+  const made = c.move({from, to, promotion: promotion || 'q'});
+  if (!made) return;
+  if (!X) startExplore(cur + 1, [], 'Your line');
+  stopAuto();
+  const next = X.moves[X.idx];
+  if (!next || next.san !== made.san) {              // a new move replaces the rest of the line
+    X.fens.length = X.idx + 1; X.moves.length = X.idx;
+    X.moves.push(made); X.fens.push(c.fen()); X.label = 'Your line';
+  }
+  X.idx++;
+  exploreChanged();
+}
+function renderExploreInfo() {
+  const fen = X.fens[X.idx], e = X.evals[fen];
+  $('iTitle').innerHTML = `<b>${X.label}</b>`;
+  $('iSay').innerHTML = '<span class="xline">' + (X.moves.map((m, j) => {
+    const [, turn, , , , n] = X.fens[j].split(' ');
+    return (turn === 'w' ? n + '. ' : j === 0 ? n + '… ' : '') + `<span class="${j === X.idx - 1 ? 'on' : ''}">${m.san}</span>`;
+  }).join(' ') || 'Tap a piece to move it.') + '</span>';
+  $('iBest').innerHTML = '';
+  $('iLine').textContent = e && e.pv.length ? 'Engine line: ' + pvToSan(fen, e.pv).join(' ') : '';
+  $('iEval').textContent = e ? 'Eval ' + e.text : 'Thinking…';
+}
+function nextHtml(fen, e) {
+  const g = goodMoves(e);
+  if (!g.length) return '';
+  const turn = fen.split(' ')[1] === 'w' ? 'White' : 'Black';
+  return `<span class="muted">${g.length > 1 ? 'Good moves' : 'Best move'} for ${turn}:</span>` + g.map(m =>
+    `<button class="chip" data-uci="${m.uci}"><b>${pvToSan(fen, [m.uci], 1)[0] || m.uci}</b><span>${m.text}</span></button>`).join('');
+}
 function renderInfo() {
+  const k = Math.max(cur, 0);
+  $('iNext').innerHTML = X ? nextHtml(X.fens[X.idx], X.evals[X.fens[X.idx]]) : nextHtml(G.fens[cur + 1], G.evals[cur + 1]);
+  $('bestLineBtn').classList.toggle('hidden', !!X || !G.evals[k].pv.length);
+  $('followBtn').classList.toggle('hidden', !!X || cur < 0 || !G.evals[cur + 1].pv.length);
+  $('exitBtn').classList.toggle('hidden', !X);
+  if (X) return renderExploreInfo();
   if (cur < 0) {
     const e = G.evals[0];
     $('iTitle').innerHTML = '<b>Starting position</b>';
     $('iSay').textContent = ''; $('iBest').innerHTML = '';
     $('iLine').textContent = e.pv.length ? 'Engine line: ' + pvToSan(G.fens[0], e.pv).join(' ') : '';
-    $('iEval').textContent = 'Eval ' + e.text + ' · tap ▶ or swipe the board';
+    $('iEval').textContent = 'Eval ' + e.text + ' · tap ▶ or swipe the board. Tap a piece to try your own moves.';
     return;
   }
   const r = G.rows[cur], g = GRADES[r.grade];
@@ -626,7 +780,7 @@ function graphPick(e) {
   const r = $('graph').getBoundingClientRect(), n = G.evals.length;
   const i = Math.round((e.clientX - r.left - 6) / (r.width - 12) * (n - 1));
   const next = Math.max(-1, Math.min(n - 2, i - 1));
-  if (next !== cur) { cur = next; renderAll(); }
+  if (next !== cur || X) { leaveExplore(); cur = next; renderAll(); }
 }
 function renderMoves() {
   const box = $('moves');
@@ -654,9 +808,10 @@ function renderSummary() {
   const op = openingName(h);
   $('opening').textContent = op; $('opening').classList.toggle('hidden', !op);
   let t = `<table class="sum"><tr><th></th><th>${plain('w')}${tag('w')}</th><th>${plain('b')}${tag('b')}</th></tr>
-    <tr><td><b>Accuracy</b></td><td><b>${acc('w')}</b></td><td><b>${acc('b')}</b></td></tr>`;
+    <tr><td><b>Accuracy</b></td><td><b>${acc('w')}</b></td><td><b>${acc('b')}</b></td></tr>
+    <tr><td><b>Game rating</b></td><td><b>${gameRating('w') ?? '–'}</b></td><td><b>${gameRating('b') ?? '–'}</b></td></tr>`;
   for (const g in GRADES) t += `<tr><td>${dot(g)}${g}</td><td>${count('w', g)}</td><td>${count('b', g)}</td></tr>`;
-  $('summary').innerHTML = t + `</table><div class="muted" style="margin-top:8px">${esc(G.engine)} · depth ${G.depth}</div>`;
+  $('summary').innerHTML = t + `</table><div class="muted" style="margin-top:8px">${esc(G.engine)} · depth ${G.depth} · game rating is a rough estimate</div>`;
 }
 function renderAll() { renderBoard(); renderInfo(); renderGraph(); renderMoves(); }
 function show(v) {
@@ -667,6 +822,14 @@ const reviewVisible = () => G && !$('reviewView').classList.contains('hidden');
 
 function nav(k) {
   if (!G) return;
+  if (X && k !== 'err') {                              // arrows walk the explored line; back past its start returns to the game
+    stopAuto();
+    const n = X.moves.length, to = k === 'first' ? 0 : k === 'last' ? n : k === 'next' ? Math.min(n, X.idx + 1) : X.idx - 1;
+    if (to < 0) return exitExplore();
+    if (to !== X.idx) { X.idx = to; exploreChanged(); }
+    return;
+  }
+  leaveExplore();
   const n = G.rows.length;
   if (k === 'first') cur = -1;
   else if (k === 'prev') cur = Math.max(-1, cur - 1);
@@ -699,6 +862,7 @@ async function startReview() {
   try { lock = await navigator.wakeLock.request('screen'); } catch (e) {}
   try {
     await engine.init();
+    leaveExplore(); await xJob;                       // let any search from the last review's analysis board finish
     engine.send('ucinewgame');
     const evals = [], n = parsed.fens.length, depth = S.depth;
     for (let i = 0; i < n; i++) {
@@ -730,9 +894,14 @@ $('file').onchange = e => {
   const rd = new FileReader(); rd.onload = () => { $('pgn').value = rd.result; }; rd.readAsText(f);
   e.target.value = '';
 };
-$('newBtn').onclick = () => { show('input'); window.scrollTo(0, 0); };
+$('newBtn').onclick = () => { leaveExplore(); show('input'); window.scrollTo(0, 0); };
+$('bestLineBtn').onclick = () => showLine(Math.max(cur, 0), 'Best line');
+$('followBtn').onclick = () => showLine(cur + 1, 'Follow-up');
+$('exitBtn').onclick = exitExplore;
+$('iNext').onclick = e => { const b = e.target.closest('.chip'); if (b) { const u = b.dataset.uci; playMove(u.slice(0, 2), u.slice(2, 4), u[4]); } };
+$('board').addEventListener('click', e => { const q = e.target.closest('.sq'); if (q && reviewVisible()) boardTap(q.dataset.sq); });
 document.querySelector('.nav').onclick = e => { const b = e.target.closest('button'); if (b) nav(b.dataset.nav); };
-$('moves').onclick = e => { const m = e.target.closest('.mv'); if (m) { cur = +m.dataset.i; renderAll(); } };
+$('moves').onclick = e => { const m = e.target.closest('.mv'); if (m) { leaveExplore(); cur = +m.dataset.i; renderAll(); } };
 let tx = null;
 $('board').addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, {passive: true});
 $('board').addEventListener('touchend', e => {
@@ -761,7 +930,7 @@ function openSettings() {
   $('sDepth').value = S.depth; $('sBook').value = S.bookPlies; $('sSpecial').checked = S.special;
   $('sExc').value = S.exc; $('sGood').value = S.good; $('sInacc').value = S.inacc; $('sMistake').value = S.mistake;
   $('sUser').value = S.username; $('sOrient').value = S.orient;
-  $('sArrows').checked = S.arrows; $('sEvalBar').checked = S.evalBar;
+  $('sArrows').checked = S.arrows; $('sNext').checked = S.nextArrows; $('sEvalBar').checked = S.evalBar;
   $('setErr').textContent = ''; updateLabels();
   $('sheet').classList.remove('hidden');
 }
@@ -780,7 +949,7 @@ $('saveBtn').onclick = () => {
   const n = {v: 2, depth: +$('sDepth').value, bookPlies: +$('sBook').value, special: $('sSpecial').checked,
     exc: +$('sExc').value, good: +$('sGood').value, inacc: +$('sInacc').value, mistake: +$('sMistake').value,
     username: $('sUser').value.trim(), orient: $('sOrient').value,
-    arrows: $('sArrows').checked, evalBar: $('sEvalBar').checked};
+    arrows: $('sArrows').checked, nextArrows: $('sNext').checked, evalBar: $('sEvalBar').checked};
   if (!(n.exc >= 0 && n.exc < n.good && n.good < n.inacc && n.inacc < n.mistake && n.mistake <= 100)) {
     $('setErr').textContent = 'Cut-offs must go up: Excellent < Good < Inaccuracy < Mistake (max 100).';
     return;
