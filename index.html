@@ -31,7 +31,12 @@ textarea{width:100%;height:130px;background:var(--card2);color:var(--text);borde
 .field input{flex:1;min-width:0;background:var(--card2);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:10px;font-size:15px}
 .field button{border:0;border-radius:8px;padding:0 16px;font-size:15px;font-weight:700;color:#fff;background:var(--accent)}
 #games{margin-top:10px;max-height:330px;overflow:auto}
-.game{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;color:var(--text);font:inherit;text-align:left;padding:9px 2px;border-top:1px solid var(--card2)}
+.game{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;color:var(--text);font:inherit;text-align:left;padding:9px 6px;border-top:1px solid var(--card2);border-radius:8px;transition:background .15s,transform .1s}
+.game:active{background:var(--card2);transform:scale(.98)}
+.game.picked{background:var(--card2);box-shadow:inset 3px 0 0 var(--accent)}
+.game.picked .meta{color:var(--accent);font-weight:700}
+.spin{display:inline-block;width:12px;height:12px;margin-right:5px;vertical-align:-1px;border:2px solid var(--accent);border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 .game .res{flex:none;width:24px;height:24px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff}
 .game .who{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .game .meta{flex:none;color:var(--muted);font-size:12px;text-align:right}
@@ -402,6 +407,9 @@ async function loadGames() {
     box.onclick = e => {
       const b = e.target.closest('.game'); if (!b || running) return;
       $('pgn').value = games[+b.dataset.i].pgn;
+      clearPick();
+      picked = {row: b, meta: b.querySelector('.meta').innerHTML};
+      b.classList.add('picked');
       startReview();
     };
   } catch (e) {
@@ -845,7 +853,17 @@ function nav(k) {
 }
 
 /* ---------- Review flow ---------- */
+// The game tapped in the chess.com list: it stays highlighted and shows progress while it is analysed.
+let picked = null;
+function clearPick() {
+  if (!picked) return;
+  picked.row.classList.remove('picked');
+  picked.row.querySelector('.meta').innerHTML = picked.meta;
+  picked = null;
+}
 function setBusy(on, text, frac) {
+  if (picked) picked.row.querySelector('.meta').innerHTML = on
+    ? `<span class="spin"></span>${frac ? Math.round(frac * 100) + '%' : 'Loading'}` : picked.meta;
   $('busy').classList.toggle('hidden', !on);
   $('reviewBtn').classList.toggle('hidden', on);
   if (on) { $('busyText').textContent = text; $('barFill').style.width = (frac * 100) + '%'; }
@@ -881,7 +899,7 @@ async function startReview() {
     if (lock) lock.release().catch(() => {});
   }
 }
-$('reviewBtn').onclick = startReview;
+$('reviewBtn').onclick = () => { clearPick(); startReview(); };
 $('cancelBtn').onclick = () => { cancelled = true; engine.stop(); };
 $('ccForm').onsubmit = e => { e.preventDefault(); loadGames(); };
 $('pasteBtn').onclick = async () => {
