@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1f1e1b">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Infinite Review</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+<style>
+:root{--bg:#262421;--card:#312e2b;--card2:#3c3936;--line:#4a4744;--text:#eee;--muted:#a19e9b;--accent:#81b64c;--light:#ebecd0;--dark:#739552}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.4 system-ui,Roboto,sans-serif}
+header{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#1f1e1b}
+header h1{margin:0;font-size:18px}
+.icon{background:none;border:0;color:var(--text);font-size:24px;padding:4px 8px}
+main{max-width:520px;margin:0 auto;padding:12px}
+.card{background:var(--card);border-radius:12px;padding:14px;margin-bottom:12px}
+textarea{width:100%;height:170px;background:var(--card2);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:10px;font:13px/1.4 monospace;resize:vertical}
+.btn{width:100%;border:0;border-radius:10px;padding:13px;font-size:16px;font-weight:700;color:#fff;background:var(--accent);margin-top:10px}
+.btn.alt{background:var(--card2);font-weight:600}
+.row{display:flex;gap:8px}.row>*{flex:1}
+.bar{height:8px;background:var(--card2);border-radius:4px;overflow:hidden;margin-top:12px}
+.bar div{height:100%;width:0;background:var(--accent);transition:width .2s}
+.muted{color:var(--muted);font-size:13px}
+.err{color:#ff7769;font-size:14px;margin-top:8px}
+.hidden{display:none!important}
+.accline{display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px}
+.accline b{font-size:17px}
+.wrap{display:flex;gap:6px;margin-bottom:10px}
+.evalbar{width:14px;border-radius:3px;overflow:hidden;background:#f2f2f2;display:flex;flex-direction:column}
+.evalbar.flip{flex-direction:column-reverse}
+.evalfill{background:#403d39;transition:height .3s}
+.board{position:relative;flex:1;aspect-ratio:1;display:grid;grid-template:repeat(8,1fr)/repeat(8,1fr);border-radius:4px;overflow:hidden;user-select:none;touch-action:pan-y}
+.sq{position:relative;display:flex;align-items:center;justify-content:center}
+.sq.l{background:var(--light)}.sq.d{background:var(--dark)}
+.hl{position:absolute;inset:0;opacity:.45;z-index:0}
+.pc{position:relative;z-index:1;line-height:1;font-family:"Noto Sans Symbols 2","Segoe UI Symbol","DejaVu Sans",serif}
+.pc.w{color:#fff;text-shadow:-1px -1px 0 #222,1px -1px 0 #222,-1px 1px 0 #222,1px 1px 0 #222,0 2px 3px #0006}
+.pc.b{color:#1d1d1d;text-shadow:0 1px 1px #fff5}
+.cf,.cr{position:absolute;font-size:10px;font-weight:700;z-index:1}
+.cf{right:3px;bottom:1px}.cr{left:3px;top:1px}
+.sq.l .cf,.sq.l .cr{color:var(--dark)}.sq.d .cf,.sq.d .cr{color:var(--light)}
+.badge{position:absolute;top:3%;right:3%;width:40%;height:40%;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;z-index:3;box-shadow:0 1px 3px #0008}
+svg.arrows{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
+.dot{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 3px;border-radius:10px;color:#fff;font-size:11px;font-weight:800;vertical-align:middle;margin-right:4px}
+.ititle{font-size:16px;margin-bottom:4px}
+.you{font-size:11px;background:var(--card2);padding:1px 6px;border-radius:8px;margin-left:4px;vertical-align:middle}
+.nav{display:grid;grid-template-columns:repeat(4,1fr) 1.8fr;gap:6px;margin-bottom:12px}
+.nav button{border:0;border-radius:8px;background:var(--card2);color:var(--text);font-size:18px;padding:11px 0}
+.nav button:last-child{font-size:14px;font-weight:600}
+#moves{position:relative;max-height:190px;overflow:auto;display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.num{color:var(--muted);font-size:13px;margin-left:4px}
+.mv{padding:4px 6px;border-radius:6px;font-size:14px;white-space:nowrap}
+.mv.cur{background:var(--card2);outline:1px solid var(--line)}
+table.sum{width:100%;border-collapse:collapse;font-size:14px}
+table.sum th,table.sum td{padding:5px 4px;text-align:center}
+table.sum td:first-child,table.sum th:first-child{text-align:left}
+table.sum th{font-size:13px;color:var(--muted);font-weight:600}
+.sheet{position:fixed;inset:0;z-index:20;background:#0009;display:flex;align-items:flex-end;justify-content:center}
+.panel{background:var(--card);width:100%;max-width:520px;max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom))}
+.panel h2{margin:0 0 4px;font-size:18px}
+.panel h3{margin:18px 0 0;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.set{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--card2)}
+.set .sub{font-size:12px;color:var(--muted)}
+.set input[type=range]{width:45%;accent-color:var(--accent)}
+.set input[type=checkbox]{width:22px;height:22px;accent-color:var(--accent)}
+.set input[type=text],.set input[type=number],.set select{background:var(--card2);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px;font-size:15px}
+.set input[type=number]{width:72px}
+.set input[type=text]{width:48%}
+#toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#000d;color:#fff;padding:10px 16px;border-radius:20px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:30}
+#toast.show{opacity:1}
+</style>
+</head>
+<body>
+<header><h1>Infinite Review</h1><button class="icon" id="gear" aria-label="Settings">⚙</button></header>
+<main>
+  <section id="inputView">
+    <div class="card">
+      <textarea id="pgn" placeholder="Paste a PGN here (chess.com: Share → PGN → Copy)"></textarea>
+      <div class="row">
+        <button class="btn alt" id="pasteBtn">📋 Paste</button>
+        <button class="btn alt" id="fileBtn">📂 Open file</button>
+      </div>
+      <input type="file" id="file" hidden>
+      <button class="btn" id="reviewBtn">Review game</button>
+      <div id="busy" class="hidden">
+        <div class="bar"><div id="barFill"></div></div>
+        <div class="muted" id="busyText" style="margin-top:6px"></div>
+        <button class="btn alt" id="cancelBtn">Cancel</button>
+      </div>
+      <div class="err" id="err"></div>
+    </div>
+    <p class="muted">Stockfish runs on your phone. Keep the app open while it analyses.</p>
+  </section>
+
+  <section id="reviewView" class="hidden">
+    <div class="accline" id="accline"></div>
+    <div class="wrap">
+      <div class="evalbar" id="evalbar"><div class="evalfill" id="evalfill"></div></div>
+      <div class="board" id="board"></div>
+    </div>
+    <div class="card">
+      <div class="ititle" id="iTitle"></div>
+      <div id="iBest"></div>
+      <div class="muted" id="iLine"></div>
+      <div class="muted" id="iEval"></div>
+    </div>
+    <div class="nav">
+      <button data-nav="first">⏮</button><button data-nav="prev">◀</button>
+      <button data-nav="next">▶</button><button data-nav="last">⏭</button>
+      <button data-nav="err">⚠ My next error</button>
+    </div>
+    <div class="card"><div id="moves"></div></div>
+    <div class="card"><div id="summary"></div></div>
+    <button class="btn alt" id="newBtn">← Review another game</button>
+  </section>
+</main>
+
+<div class="sheet hidden" id="sheet">
+  <div class="panel">
+    <h2>Settings</h2>
+    <h3>Engine</h3>
+    <div class="set"><div>Depth <b id="depthVal"></b><div class="sub">Higher = more accurate but slower. 12–14 suits a phone.</div></div><input type="range" id="sDepth" min="6" max="22"></div>
+    <h3>Grading</h3>
+    <div class="set"><div>Opening book <b id="bookVal"></b><div class="sub">Early moves that lose almost nothing count as Book. 0 = off.</div></div><input type="range" id="sBook" min="0" max="30"></div>
+    <div class="set"><div>Brilliant / Great / Miss<div class="sub">Special grades on top of the basic ones</div></div><input type="checkbox" id="sSpecial"></div>
+    <div class="set"><div>Excellent up to<div class="sub">% win chance lost</div></div><input type="number" id="sExc" min="0" max="100" step="0.5"></div>
+    <div class="set"><div>Good up to</div><input type="number" id="sGood" min="0" max="100" step="0.5"></div>
+    <div class="set"><div>Inaccuracy up to</div><input type="number" id="sInacc" min="0" max="100" step="0.5"></div>
+    <div class="set"><div>Mistake up to<div class="sub">Anything above is a Blunder</div></div><input type="number" id="sMistake" min="0" max="100" step="0.5"></div>
+    <h3>Display</h3>
+    <div class="set"><div>Your username<div class="sub">Puts your side at the bottom and marks "you"</div></div><input type="text" id="sUser" autocapitalize="off" autocomplete="off"></div>
+    <div class="set"><div>Default side</div><select id="sOrient"><option value="white">White</option><option value="black">Black</option></select></div>
+    <div class="set"><div>Best-move arrows</div><input type="checkbox" id="sArrows"></div>
+    <div class="set"><div>Eval bar</div><input type="checkbox" id="sEvalBar"></div>
+    <div class="err" id="setErr"></div>
+    <button class="btn" id="saveBtn">Save</button>
+    <div class="row"><button class="btn alt" id="resetBtn">Reset defaults</button><button class="btn alt" id="closeBtn">Close</button></div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const SF = 'https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/';
+const FILES = 'abcdefgh';
+const VAL = {p:1, n:3, b:3, r:5, q:9, k:100};
+const GLYPH = {k:'\u265A', q:'\u265B', r:'\u265C', b:'\u265D', n:'\u265E', p:'\u265F'};
+const GRADES = {
+  Brilliant: {sym:'!!', color:'#26c2a3', say:'is brilliant'},
+  Great:     {sym:'!',  color:'#749bbf', say:'is a great move'},
+  Best:      {sym:'★',  color:'#81b64c', say:'is best'},
+  Excellent: {sym:'👍', color:'#96bc4b', say:'is excellent'},
+  Good:      {sym:'✓',  color:'#96af8b', say:'is good'},
+  Book:      {sym:'📖', color:'#a88865', say:'is a book move'},
+  Inaccuracy:{sym:'?!', color:'#f7c631', say:'is an inaccuracy'},
+  Mistake:   {sym:'?',  color:'#ffa459', say:'is a mistake'},
+  Miss:      {sym:'✗',  color:'#ff7769', say:'is a miss'},
+  Blunder:   {sym:'??', color:'#fa412d', say:'is a blunder'},
+};
+const ERRORS = new Set(['Inaccuracy', 'Mistake', 'Miss', 'Blunder']);
+const NO_BEST = ['Best', 'Great', 'Brilliant', 'Book'];
+const DEFAULTS = {depth:12, bookPlies:10, special:true, exc:2, good:5, inacc:10, mistake:20,
+                  username:'', orient:'white', arrows:true, evalBar:true};
+
+let S = loadSettings(), G = null, cur = -1, cancelled = false;
+
+function loadSettings() {
+  try { return {...DEFAULTS, ...JSON.parse(localStorage.getItem('ir-settings') || '{}')}; }
+  catch (e) { return {...DEFAULTS}; }
+}
+function storeSettings() { try { localStorage.setItem('ir-settings', JSON.stringify(S)); } catch (e) {} }
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function toast(msg) {
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 2500);
+}
+const sqName = (f, r) => FILES[f] + (r + 1);
+const dot = g => `<span class="dot" style="background:${GRADES[g].color}">${GRADES[g].sym}</span>`;
+
+/* ---------- Stockfish ---------- */
+const engine = {
+  w: null, onLine: () => {}, booting: null,
+  init() {
+    if (!this.booting) this.booting = this.boot().catch(e => { this.booting = null; throw e; });
+    return this.booting;
+  },
+  async boot() {
+    const modes = typeof WebAssembly === 'object' ? [true, false] : [false];
+    for (const wasm of modes) {
+      try { await this.start(wasm); return; }
+      catch (e) { if (this.w) this.w.terminate(); this.w = null; }
+    }
+    throw new Error('Could not load Stockfish. Check your internet connection and try again.');
+  },
+  start(wasm) {
+    return new Promise((resolve, reject) => {
+      const src = wasm
+        ? `var Module={locateFile:function(p){return "${SF}"+p}};importScripts("${SF}stockfish.wasm.js");`
+        : `importScripts("${SF}stockfish.js");`;
+      const w = this.w = new Worker(URL.createObjectURL(new Blob([src], {type:'text/javascript'})));
+      let ok = false;
+      const ping = setInterval(() => w.postMessage('uci'), 2000);
+      const timer = setTimeout(() => { clearInterval(ping); reject(new Error('timeout')); }, 25000);
+      w.onerror = e => { clearInterval(ping); clearTimeout(timer); reject(e); };
+      w.onmessage = e => {
+        const line = String(e.data);
+        if (ok) return this.onLine(line);
+        if (line.includes('uciok')) {
+          ok = true; clearInterval(ping); clearTimeout(timer);
+          w.postMessage('setoption name MultiPV value 2');
+          resolve();
+        }
+      };
+      w.postMessage('uci');
+    });
+  },
+  send(cmd) { this.w.postMessage(cmd); },
+  analyse(fen, depth) {
+    return new Promise(resolve => {
+      const lines = {};
+      this.onLine = l => {
+        if (l.startsWith('info') && l.includes(' pv ') && !/bound/.test(l)) {
+          const mp = /multipv (\d+)/.exec(l), sc = /score (cp|mate) (-?\d+)/.exec(l);
+          if (sc) lines[mp ? +mp[1] : 1] = {type: sc[1], v: +sc[2], pv: l.split(' pv ')[1].trim().split(/\s+/)};
+        } else if (l.startsWith('bestmove')) { this.onLine = () => {}; resolve(lines); }
+      };
+      this.send('position fen ' + fen);
+      this.send('go depth ' + depth);
+    });
+  }
+};
+
+function epOf(l) {
+  const cp = l.type === 'cp' ? l.v : (l.v > 0 ? 10000 - l.v : -10000 - l.v);
+  return 1 / (1 + Math.exp(-0.00368208 * cp));
+}
+function evalText(l, stm) {
+  const v = l.v * (stm === 'w' ? 1 : -1);
+  if (l.type === 'mate') return (v > 0 ? 'M' : '-M') + Math.abs(v);
+  return (v >= 0 ? '+' : '') + (v / 100).toFixed(2);
+}
+async function evaluate(fen) {
+  const c = new Chess(fen), stm = c.turn();
+  if (c.in_checkmate()) return {ep:0, second:null, best:null, pv:[], text:'#', epW: stm === 'w' ? 0 : 1};
+  if (c.game_over()) return {ep:0.5, second:null, best:null, pv:[], text:'½-½', epW:0.5};
+  const lines = await engine.analyse(fen, S.depth), l1 = lines[1], l2 = lines[2];
+  if (!l1) return {ep:0.5, second:null, best:null, pv:[], text:'?', epW:0.5};
+  const ep = epOf(l1);
+  return {ep, second: l2 ? epOf(l2) : null, best: l1.pv[0], pv: l1.pv,
+          text: evalText(l1, stm), epW: stm === 'w' ? ep : 1 - ep};
+}
+
+/* ---------- PGN ---------- */
+function parsePGN(text) {
+  if (!text.trim()) throw new Error('Paste or open a PGN first.');
+  const headers = {};
+  for (const m of text.matchAll(/^\s*\[(\w+)\s+"([^"]*)"\]\s*$/gm)) headers[m[1]] = m[2];
+  let body = text.replace(/^\s*\[.*\]\s*$/gm, ' ').replace(/\{[^}]*\}/g, ' ').replace(/;[^\n]*/g, ' ');
+  let prev;
+  do { prev = body; body = body.replace(/\([^()]*\)/g, ' '); } while (body !== prev);
+  body = body.replace(/\$\d+/g, ' ').replace(/\d+\.+/g, ' ');
+  const tokens = body.split(/\s+/).filter(t => t && !/^(1-0|0-1|1\/2-1\/2|\*)$/.test(t));
+  const game = headers.FEN ? new Chess(headers.FEN) : new Chess();
+  const fens = [game.fen()], moves = [];
+  for (let t of tokens) {
+    t = t.replace(/[!?]+$/, '').replace(/^0-0-0/, 'O-O-O').replace(/^0-0/, 'O-O');
+    const m = game.move(t, {sloppy: true});
+    if (!m) throw new Error(`Couldn't read move "${t}" (move ${moves.length + 1}).`);
+    moves.push(m); fens.push(game.fen());
+  }
+  if (!moves.length) throw new Error('No moves found in that PGN.');
+  return {headers, fens, moves};
+}
+
+/* ---------- Grading ---------- */
+function attackers(c, f, r, color) {
+  const at = (ff, rr) => (ff < 0 || ff > 7 || rr < 0 || rr > 7) ? undefined : c.get(sqName(ff, rr));
+  const out = [], pr = r + (color === 'w' ? -1 : 1);
+  for (const df of [-1, 1]) { const p = at(f + df, pr); if (p && p.color === color && p.type === 'p') out.push('p'); }
+  for (const [df, dr] of [[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]]) {
+    const p = at(f + df, r + dr); if (p && p.color === color && p.type === 'n') out.push('n');
+  }
+  for (const [df, dr] of [[1,1],[1,-1],[-1,1],[-1,-1],[1,0],[-1,0],[0,1],[0,-1]]) {
+    const near = at(f + df, r + dr);
+    if (near && near.color === color && near.type === 'k') out.push('k');
+    const slider = df && dr ? 'b' : 'r';
+    for (let k = 1; k < 8; k++) {
+      const p = at(f + df * k, r + dr * k);
+      if (p === undefined) break;
+      if (!p) continue;
+      if (p.color === color && (p.type === 'q' || p.type === slider)) out.push(p.type);
+      break;
+    }
+  }
+  return out;
+}
+function hanging(c, color) {
+  const opp = color === 'w' ? 'b' : 'w', out = new Set();
+  for (let f = 0; f < 8; f++) for (let r = 0; r < 8; r++) {
+    const p = c.get(sqName(f, r));
+    if (!p || p.color !== color || p.type === 'p' || p.type === 'k') continue;
+    const atk = attackers(c, f, r, opp);
+    if (!atk.length) continue;
+    const cheapest = Math.min(...atk.map(t => VAL[t]));
+    if (!attackers(c, f, r, color).length || cheapest < VAL[p.type]) out.add(f + ',' + r);
+  }
+  return out;
+}
+function isSacrifice(fen, m) {
+  const gained = m.captured ? VAL[m.captured] : 0;
+  const hb = hanging(new Chess(fen), m.color);
+  const after = new Chess(fen);
+  after.move({from: m.from, to: m.to, promotion: m.promotion});
+  let lost = 0;
+  for (const key of hanging(after, m.color)) {
+    if (hb.has(key)) continue;
+    const [f, r] = key.split(',').map(Number);
+    lost = Math.max(lost, VAL[after.get(sqName(f, r)).type]);
+  }
+  return lost - gained >= 2;
+}
+function pvToSan(fen, pv, n = 6) {
+  const c = new Chess(fen), out = [];
+  for (const u of pv.slice(0, n)) {
+    const mv = c.move({from: u.slice(0, 2), to: u.slice(2, 4), promotion: u[4]});
+    if (!mv) break;
+    out.push(mv.san);
+  }
+  return out;
+}
+const accuracy = loss => Math.max(0, Math.min(100, 103.1668 * Math.exp(-0.04354 * loss * 100) - 3.1669));
+
+function classifyAll() {
+  const {moves, fens, evals} = G;
+  const T = {exc: S.exc / 100, good: S.good / 100, inacc: S.inacc / 100, mistake: S.mistake / 100};
+  let prevLoss = 0, book = S.bookPlies > 0;
+  G.rows = moves.map((m, i) => {
+    const before = evals[i], after = evals[i + 1];
+    const bestEp = before.ep, playedEp = 1 - after.ep;
+    const isBest = before.best === m.from + m.to + (m.promotion || '');
+    const loss = isBest ? 0 : Math.max(0, bestEp - playedEp);
+    let grade = isBest ? 'Best' : loss <= T.exc ? 'Excellent' : loss <= T.good ? 'Good'
+              : loss <= T.inacc ? 'Inaccuracy' : loss <= T.mistake ? 'Mistake' : 'Blunder';
+    if (S.special) {
+      if (prevLoss > T.inacc && loss > T.inacc && playedEp >= 0.40) grade = 'Miss';
+      const prev = moves[i - 1], recapture = prev && m.captured && prev.to === m.to;
+      if (isBest && before.second !== null && bestEp - before.second >= 0.20 && !recapture) grade = 'Great';
+      const cruising = before.second !== null && before.second >= 0.95;
+      if (loss <= T.exc && playedEp >= 0.5 && !cruising && isSacrifice(fens[i], m)) grade = 'Brilliant';
+    }
+    book = book && i < S.bookPlies && loss <= 0.03;
+    if (book) grade = 'Book';
+    prevLoss = loss;
+    const line = pvToSan(fens[i], before.pv), n = fens[i].split(' ')[5];
+    return {grade, loss, acc: book ? 100 : accuracy(loss), san: m.san, color: m.color,
+            num: m.color === 'w' ? n + '.' : n + '...', bestUci: before.best,
+            bestSan: line[0] || '—', line: line.join(' '), evalBefore: before.text, evalAfter: after.text};
+  });
+}
+function youColor() {
+  const u = S.username.trim().toLowerCase();
+  if (u && (G.headers.White || '').toLowerCase() === u) return 'w';
+  if (u && (G.headers.Black || '').toLowerCase() === u) return 'b';
+  return S.orient === 'black' ? 'b' : 'w';
+}
+
+/* ---------- Rendering ---------- */
+function arrow(from, to, color, flip) {
+  const xy = s => { const f = s.charCodeAt(0) - 97, r = +s[1] - 1; return [(flip ? 7 - f : f) + .5, (flip ? r : 7 - r) + .5]; };
+  const [x1, y1] = xy(from), [x2, y2] = xy(to);
+  const len = Math.hypot(x2 - x1, y2 - y1), ux = (x2 - x1) / len, uy = (y2 - y1) / len, px = -uy, py = ux;
+  const w = .11, hw = .3, hl = .38, bx = x2 - ux * hl, by = y2 - uy * hl;
+  const pts = [[x1+px*w, y1+py*w], [bx+px*w, by+py*w], [bx+px*hw, by+py*hw], [x2, y2],
+               [bx-px*hw, by-py*hw], [bx-px*w, by-py*w], [x1-px*w, y1-py*w]];
+  return `<polygon points="${pts.map(p => p.join(',')).join(' ')}" fill="${color}" opacity=".85"/>`;
+}
+function renderBoard() {
+  const el = $('board'), flip = youColor() === 'b';
+  $('evalbar').classList.toggle('hidden', !S.evalBar);
+  $('evalbar').classList.toggle('flip', flip);
+  $('evalfill').style.height = ((1 - G.evals[cur + 1].epW) * 100) + '%';
+  const c = new Chess(G.fens[cur + 1]);
+  const row = cur >= 0 ? G.rows[cur] : null, mv = cur >= 0 ? G.moves[cur] : null;
+  const size = el.clientWidth / 8;
+  let html = '';
+  for (let vr = 0; vr < 8; vr++) for (let vc = 0; vc < 8; vc++) {
+    const f = flip ? 7 - vc : vc, rk = flip ? vr : 7 - vr, sq = sqName(f, rk);
+    let inner = '';
+    if (mv && (sq === mv.from || sq === mv.to)) inner += `<div class="hl" style="background:${GRADES[row.grade].color}"></div>`;
+    const p = c.get(sq);
+    if (p) inner += `<span class="pc ${p.color}" style="font-size:${size * .8}px">${GLYPH[p.type]}\uFE0E</span>`;
+    if (mv && sq === mv.to) inner += `<div class="badge" style="background:${GRADES[row.grade].color};font-size:${size * .22}px">${GRADES[row.grade].sym}</div>`;
+    if (vr === 7) inner += `<span class="cf">${FILES[f]}</span>`;
+    if (vc === 0) inner += `<span class="cr">${rk + 1}</span>`;
+    html += `<div class="sq ${(f + rk) % 2 ? 'l' : 'd'}">${inner}</div>`;
+  }
+  let svg = '';
+  if (S.arrows && row && row.bestUci && !NO_BEST.includes(row.grade))
+    svg = arrow(row.bestUci.slice(0, 2), row.bestUci.slice(2, 4), '#5cb85c', flip);
+  el.innerHTML = html + `<svg class="arrows" viewBox="0 0 8 8">${svg}</svg>`;
+}
+function renderInfo() {
+  if (cur < 0) {
+    const e = G.evals[0];
+    $('iTitle').innerHTML = '<b>Starting position</b>';
+    $('iBest').innerHTML = '';
+    $('iLine').textContent = e.pv.length ? 'Engine line: ' + pvToSan(G.fens[0], e.pv).join(' ') : '';
+    $('iEval').textContent = 'Eval ' + e.text + ' · tap ▶ or swipe the board';
+    return;
+  }
+  const r = G.rows[cur], g = GRADES[r.grade];
+  $('iTitle').innerHTML = `${dot(r.grade)}<b>${r.num} ${r.san}</b> <span style="color:${g.color}">${g.say}</span>`
+    + (r.color === youColor() ? '<span class="you">you</span>' : '');
+  $('iBest').innerHTML = NO_BEST.includes(r.grade) ? '' : `Best was <b style="color:#81b64c">${r.bestSan}</b>`;
+  $('iLine').textContent = r.line ? 'Engine line: ' + r.line : '';
+  $('iEval').textContent = `Eval ${r.evalBefore} → ${r.evalAfter}`
+    + (r.grade === 'Book' ? '' : ` · ${(r.loss * 100).toFixed(1)}% win chance lost`);
+}
+function renderMoves() {
+  const box = $('moves');
+  box.innerHTML = G.rows.map((r, i) =>
+    (r.color === 'w' || i === 0 ? `<span class="num">${r.num}</span>` : '') +
+    `<span class="mv${i === cur ? ' cur' : ''}" data-i="${i}">${dot(r.grade)}${r.san}</span>`).join('');
+  const c = box.querySelector('.cur');
+  if (c) box.scrollTop = c.offsetTop - box.clientHeight / 2;
+}
+function renderSummary() {
+  const you = youColor();
+  const name = c => esc(G.headers[c === 'w' ? 'White' : 'Black'] || (c === 'w' ? 'White' : 'Black'))
+    + (c === you ? ' <span class="you">you</span>' : '');
+  const acc = c => { const a = G.rows.filter(r => r.color === c);
+    return a.length ? (a.reduce((s, r) => s + r.acc, 0) / a.length).toFixed(1) : '–'; };
+  const count = (c, g) => G.rows.filter(r => r.color === c && r.grade === g).length;
+  let h = `<table class="sum"><tr><th></th><th>${name('w')}</th><th>${name('b')}</th></tr>
+    <tr><td><b>Accuracy</b></td><td><b>${acc('w')}</b></td><td><b>${acc('b')}</b></td></tr>`;
+  for (const g in GRADES) h += `<tr><td>${dot(g)}${g}</td><td>${count('w', g)}</td><td>${count('b', g)}</td></tr>`;
+  $('summary').innerHTML = h + '</table>';
+  $('accline').innerHTML = `<span>⚪ ${name('w')} <b>${acc('w')}</b></span><span><b>${acc('b')}</b> ${name('b')} ⚫</span>`;
+}
+function renderAll() { renderBoard(); renderInfo(); renderMoves(); }
+function show(v) {
+  $('inputView').classList.toggle('hidden', v !== 'input');
+  $('reviewView').classList.toggle('hidden', v !== 'review');
+}
+const reviewVisible = () => G && !$('reviewView').classList.contains('hidden');
+
+function nav(k) {
+  if (!G) return;
+  const n = G.rows.length;
+  if (k === 'first') cur = -1;
+  else if (k === 'prev') cur = Math.max(-1, cur - 1);
+  else if (k === 'next') cur = Math.min(n - 1, cur + 1);
+  else if (k === 'last') cur = n - 1;
+  else if (k === 'err') {
+    const you = youColor();
+    const j = G.rows.findIndex((r, i) => i > cur && r.color === you && ERRORS.has(r.grade));
+    if (j < 0) { toast('No more errors 🎉'); return; }
+    cur = j;
+  }
+  renderAll();
+}
+
+/* ---------- Review flow ---------- */
+function setBusy(on, text, frac) {
+  $('busy').classList.toggle('hidden', !on);
+  $('reviewBtn').classList.toggle('hidden', on);
+  if (on) { $('busyText').textContent = text; $('barFill').style.width = (frac * 100) + '%'; }
+}
+$('reviewBtn').onclick = async () => {
+  $('err').textContent = '';
+  let parsed;
+  try { parsed = parsePGN($('pgn').value); } catch (e) { $('err').textContent = e.message; return; }
+  cancelled = false;
+  setBusy(true, 'Loading Stockfish…', 0);
+  let lock = null;
+  try { lock = await navigator.wakeLock.request('screen'); } catch (e) {}
+  try {
+    await engine.init();
+    engine.send('ucinewgame');
+    const evals = [], n = parsed.fens.length;
+    for (let i = 0; i < n; i++) {
+      if (cancelled) throw new Error('Review cancelled.');
+      setBusy(true, `Analysing position ${i + 1} of ${n} · depth ${S.depth}`, i / n);
+      evals.push(await evaluate(parsed.fens[i]));
+    }
+    G = {...parsed, evals}; cur = -1;
+    classifyAll(); show('review'); renderSummary(); renderAll(); window.scrollTo(0, 0);
+  } catch (e) {
+    $('err').textContent = e.message || String(e);
+  } finally {
+    setBusy(false);
+    if (lock) lock.release().catch(() => {});
+  }
+};
+$('cancelBtn').onclick = () => { cancelled = true; };
+$('pasteBtn').onclick = async () => {
+  try { $('pgn').value = await navigator.clipboard.readText(); }
+  catch (e) { toast('Long-press the box and paste instead'); }
+};
+$('fileBtn').onclick = () => $('file').click();
+$('file').onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  const rd = new FileReader(); rd.onload = () => { $('pgn').value = rd.result; }; rd.readAsText(f);
+  e.target.value = '';
+};
+$('newBtn').onclick = () => { show('input'); window.scrollTo(0, 0); };
+document.querySelector('.nav').onclick = e => { const b = e.target.closest('button'); if (b) nav(b.dataset.nav); };
+$('moves').onclick = e => { const m = e.target.closest('.mv'); if (m) { cur = +m.dataset.i; renderAll(); } };
+let tx = null;
+$('board').addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, {passive: true});
+$('board').addEventListener('touchend', e => {
+  if (tx === null) return;
+  const dx = e.changedTouches[0].clientX - tx; tx = null;
+  if (Math.abs(dx) > 40) nav(dx < 0 ? 'next' : 'prev');
+});
+document.addEventListener('keydown', e => {
+  if (!reviewVisible()) return;
+  if (e.key === 'ArrowRight') nav('next');
+  if (e.key === 'ArrowLeft') nav('prev');
+});
+window.addEventListener('resize', () => { if (reviewVisible()) renderBoard(); });
+
+/* ---------- Settings ---------- */
+function updateLabels() {
+  $('depthVal').textContent = $('sDepth').value;
+  const b = +$('sBook').value;
+  $('bookVal').textContent = b ? b + ' plies' : 'off';
+}
+function openSettings() {
+  $('sDepth').value = S.depth; $('sBook').value = S.bookPlies; $('sSpecial').checked = S.special;
+  $('sExc').value = S.exc; $('sGood').value = S.good; $('sInacc').value = S.inacc; $('sMistake').value = S.mistake;
+  $('sUser').value = S.username; $('sOrient').value = S.orient;
+  $('sArrows').checked = S.arrows; $('sEvalBar').checked = S.evalBar;
+  $('setErr').textContent = ''; updateLabels();
+  $('sheet').classList.remove('hidden');
+}
+function applySettings(depthChanged) {
+  if (!reviewVisible()) return;
+  classifyAll(); renderSummary(); renderAll();
+  if (depthChanged) toast('New depth applies next time you review');
+}
+$('sDepth').oninput = $('sBook').oninput = updateLabels;
+$('gear').onclick = openSettings;
+$('closeBtn').onclick = () => $('sheet').classList.add('hidden');
+$('sheet').onclick = e => { if (e.target.id === 'sheet') $('sheet').classList.add('hidden'); };
+$('resetBtn').onclick = () => { S = {...DEFAULTS}; storeSettings(); openSettings(); applySettings(false); toast('Defaults restored'); };
+$('saveBtn').onclick = () => {
+  const n = {depth: +$('sDepth').value, bookPlies: +$('sBook').value, special: $('sSpecial').checked,
+    exc: +$('sExc').value, good: +$('sGood').value, inacc: +$('sInacc').value, mistake: +$('sMistake').value,
+    username: $('sUser').value.trim(), orient: $('sOrient').value,
+    arrows: $('sArrows').checked, evalBar: $('sEvalBar').checked};
+  if (!(n.exc >= 0 && n.exc < n.good && n.good < n.inacc && n.inacc < n.mistake && n.mistake <= 100)) {
+    $('setErr').textContent = 'Cut-offs must go up: Excellent < Good < Inaccuracy < Mistake (max 100).';
+    return;
+  }
+  const depthChanged = G && n.depth !== S.depth;
+  S = n; storeSettings(); $('sheet').classList.add('hidden');
+  applySettings(depthChanged);
+};
+</script>
+</body>
+</html>
