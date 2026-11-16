@@ -531,6 +531,8 @@ function arrow(from, to, color, flip) {
                [bx-px*hw, by-py*hw], [bx-px*w, by-py*w], [x1-px*w, y1-py*w]];
   return `<polygon points="${pts.map(p => p.join(',')).join(' ')}" fill="${color}" opacity=".85"/>`;
 }
+let shown = null;   // move index the board last drew, so a single step can be animated
+const noMotion = matchMedia('(prefers-reduced-motion: reduce)');
 function pieceFail() { if (imgPieces) { imgPieces = false; if (reviewVisible()) renderBoard(); } }
 function renderBoard() {
   const el = $('board'), flip = youColor() === 'b';
@@ -552,12 +554,35 @@ function renderBoard() {
     if (mv && sq === mv.to) inner += `<div class="badge" style="background:${GRADES[row.grade].color};font-size:${size * .22}px">${GRADES[row.grade].sym}</div>`;
     if (vr === 7) inner += `<span class="cf">${FILES[f]}</span>`;
     if (vc === 0) inner += `<span class="cr">${rk + 1}</span>`;
-    html += `<div class="sq ${(f + rk) % 2 ? 'l' : 'd'}">${inner}</div>`;
+    html += `<div class="sq ${(f + rk) % 2 ? 'l' : 'd'}" data-sq="${sq}">${inner}</div>`;
   }
   let svg = '';
   if (S.arrows && row && row.bestUci && !NO_BEST.includes(row.grade))
     svg = arrow(row.bestUci.slice(0, 2), row.bestUci.slice(2, 4), '#5cb85c', flip);
   el.innerHTML = html + `<svg class="arrows" viewBox="0 0 8 8">${svg}</svg>`;
+  animateStep(el, size, flip);
+}
+// Slide the moved piece when stepping exactly one move forward or back; jumps just snap.
+function animateStep(el, size, flip) {
+  const from = shown; shown = cur;
+  if (from === null || Math.abs(cur - from) !== 1 || !el.animate || noMotion.matches) return;
+  const fwd = cur > from, m = G.moves[fwd ? cur : from];
+  const slides = [[m.from, m.to]];
+  if (m.flags.includes('k')) slides.push(['h' + m.from[1], 'f' + m.from[1]]);   // castling: rook too
+  if (m.flags.includes('q')) slides.push(['a' + m.from[1], 'd' + m.from[1]]);
+  const col = s => flip ? 104 - s.charCodeAt(0) : s.charCodeAt(0) - 97, rowOf = s => flip ? +s[1] - 1 : 8 - s[1];
+  for (let [a, b] of slides) {
+    if (!fwd) [a, b] = [b, a];
+    const pc = el.querySelector(`[data-sq="${b}"] .pc`);
+    if (!pc) continue;
+    pc.style.zIndex = 4;
+    pc.animate([{transform: `translate(${(col(a) - col(b)) * size}px,${(rowOf(a) - rowOf(b)) * size}px)`}, {transform: 'none'}],
+               {duration: 180, easing: 'ease-out'}).onfinish = () => { pc.style.zIndex = ''; };
+  }
+  const pop = {duration: 160, delay: 150, fill: 'backwards', easing: 'ease-out'};
+  const badge = el.querySelector('.badge'), arrows = el.querySelector('svg.arrows');
+  if (badge) badge.animate([{transform: 'scale(0)'}, {transform: 'scale(1.15)', offset: .7}, {transform: 'scale(1)'}], pop);
+  arrows.animate([{opacity: 0}, {opacity: 1}], pop);
 }
 function renderInfo() {
   if (cur < 0) {
@@ -682,7 +707,7 @@ async function startReview() {
       evals.push(await evaluate(parsed.fens[i]));
     }
     if (cancelled) throw new Error('Review cancelled.');
-    G = {...parsed, evals, engine: engine.name, depth}; cur = -1;
+    G = {...parsed, evals, engine: engine.name, depth}; cur = -1; shown = null;
     classifyAll(); show('review'); renderSummary(); renderAll(); window.scrollTo(0, 0);
   } catch (e) {
     $('err').textContent = e.message || String(e);
